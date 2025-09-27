@@ -21,7 +21,10 @@
         "ckolkman.vscode-postgres",
         "ms-vscode.vscode-mysql",
         "wallabyjs.quokka-vscode",
-        "Prisma.prisma"
+        "Prisma.prisma",
+        "github.copilot",
+        "github.copilot-chat",
+        "eamodio.gitlens"
       ],
       "settings": {
         "typescript.preferences.quoteStyle": "single",

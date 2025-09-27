@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(uuid()) @db.Uuid
+  email      String     @unique
+  password   String
+  first_name String?
+  last_name  String?
+  is_active  Boolean    @default(true)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  bookmarks  Bookmark[]
+
+  @@map("users")
+}
+
+model Bookmark {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  link        String
+  is_favorite Boolean  @default(false)
+  tags        String[]
+
+  user_id    String   @db.Uuid
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  categories BookmarkCategory[]
+
+  @@map("bookmarks")
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  color       String   @default("#007bff")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  bookmarks BookmarkCategory[]
+
+  @@map("categories")
+}
+
+model BookmarkCategory {
+  bookmark_id String   @db.Uuid
+  category_id String   @db.Uuid
+  created_at  DateTime @default(now())
+
+  bookmark Bookmark @relation(fields: [bookmark_id], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@id([bookmark_id, category_id])
+  @@map("bookmark_categories")
+}

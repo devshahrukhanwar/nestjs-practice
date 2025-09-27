@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # NestJS Application Service
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: nestjs-learning-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload in development
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST=postgres-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=nestjs
+      - DATABASE_PASSWORD=nestjs123
+      - DATABASE_NAME=nestjs_learning
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - nestjs-network
+
+  # PostgreSQL Database Service
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: nestjs-postgres-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: nestjs_learning
+      POSTGRES_USER: nestjs
+      POSTGRES_PASSWORD: nestjs123
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    volumes:
+      # Persist database data
+      - postgres-data:/var/lib/postgresql/data
+      # Initialize scripts
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nestjs -d nestjs_learning"]
+      timeout: 10s
+      retries: 10
+      interval: 30s
+    networks:
+      - nestjs-network
+
+  # pgAdmin (optional, for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nestjs-pgadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - nestjs-network
+
+# Named volumes for data persistence
+volumes:
+  postgres-data:
+    driver: local
+  pgadmin-data:
+    driver: local
+
+# Networks
+networks:
+  nestjs-network:
+    driver: bridge

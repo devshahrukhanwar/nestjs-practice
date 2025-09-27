@@ -1,0 +1,82 @@
+{
+  "name": "NestJS Learning Environment",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "nestjs-app",
+  "workspaceFolder": "/usr/src/app",
+  "shutdownAction": "stopCompose",
+  // VS Code customizations
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-npm-script",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-html-css-support",
+        "ms-vscode.vscode-docker",
+        "ckolkman.vscode-postgres",
+        "ms-vscode.vscode-mysql",
+        "wallabyjs.quokka-vscode",
+        "Prisma.prisma"
+      ],
+      "settings": {
+        "typescript.preferences.quoteStyle": "single",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "eslint.enable": true,
+        "eslint.format.enable": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true
+        },
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  // Features to install
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  // Forward ports
+  "forwardPorts": [
+    3000,
+    3306,
+    8080
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "NestJS App",
+      "onAutoForward": "notify"
+    },
+    "3306": {
+      "label": "MySQL Database"
+    },
+    "8080": {
+      "label": "phpMyAdmin"
+    }
+  },
+  // Post-create commands
+  "postCreateCommand": "npm install",
+  // Container user
+  "remoteUser": "node",
+  // Mount docker socket for docker commands
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ]
+}
